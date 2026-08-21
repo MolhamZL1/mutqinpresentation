@@ -18,9 +18,8 @@
 | 14 | Non-Functional Requirements | وئام | Performance / Security / Reliability / Maintainability |
 | 15 | Agile Process | وئام | 8 Sprints / 3 Releases |
 | 16 | Architecture | ملهم | Web / Mobile / Backend / Database |
-| 17 | Challenges | ملهم | العوائق الثلاث: Requirements → Measurement → AI Reliability |
-| 18 | How we solved them | ملهم | معالجة كل عائق: مقابلات / محرك القياس / دعم القرار |
-| 19 | Testing | عمار | Unit / Integration / Black-Box + negative cases |
-| 20 | Conclusion | عمار | الخاتمة والعودة للأسئلة الأربعة |
+| 17 | Challenges | ملهم | العوائق الثلاث، وكل ضغطة سهم تكشف معالجة عائق |
+| 18 | Testing | عمار | Unit / Integration / Black-Box + negative cases |
+| 19 | Conclusion | عمار | الخاتمة والعودة للأسئلة الأربعة |
 
 > ملاحظة: إذا قررتوا تقليل السلايدات، لا تحذفوا سلايد الخاتمة. احذفوا فقط بدمج 8 و9 إن اضطررتم.

@@ -22,6 +22,8 @@ const media = {
   web: asset('product/web-dashboard.png'),
   assistant: asset('product/assistant-mobile.jpg'),
   owner: asset('product/owner-mobile.jpg'),
+  tahady: asset('presentation/tahady.jpeg'),
+  materialsest: asset('presentation/materialsest.jpg'),
 }
 
 const sections = [
@@ -37,24 +39,32 @@ const sections = [
   { k: 'estimation', section: 'التقدير', en: 'Parametric estimation' },
   { k: 'cost', section: 'الكلفة', en: 'Cost control' },
   { k: 'ai-inspection', section: 'الفحص البصري', en: 'AI visual inspection', dark: true },
-  { k: 'ai-vision', section: 'التصور والمساعد', en: 'AI visualization & assistant' },
+  { k: 'ai-vision', section: 'التصور البصري', en: 'AI visualization' },
+  { k: 'ai-assistant', section: 'المساعد الذكي', en: 'Context-aware assistant' },
   { k: 'nfr', section: 'المتطلبات غير الوظيفية', en: 'Non-functional requirements' },
   { k: 'process', section: 'نموذج العمل', en: 'Agile process' },
   { k: 'architecture', section: 'البنية المعمارية', en: 'Architecture' },
   { k: 'challenges', section: 'التحديات', en: 'Challenges', dark: true },
-  { k: 'solutions', section: 'المعالجة', en: 'How we solved them' },
   { k: 'testing', section: 'الاختبار', en: 'Testing phase' },
   { k: 'closing', section: 'الخاتمة', en: 'Conclusion', dark: true },
 ]
 
-function useSlideNavigation(total) {
-  const [index, setIndex] = useState(0)
+function useSlideNavigation(total, interceptors) {
+  const [index, setIndex] = useState(12)
   const touchStart = useRef(null)
   const wheelLock = useRef(false)
 
   const goTo = (value) => setIndex(Math.max(0, Math.min(total - 1, value)))
-  const next = () => goTo(index + 1)
-  const prev = () => goTo(index - 1)
+  const next = () => {
+    const step = interceptors?.current?.[index]
+    if (step?.next?.()) return
+    goTo(index + 1)
+  }
+  const prev = () => {
+    const step = interceptors?.current?.[index]
+    if (step?.prev?.()) return
+    goTo(index - 1)
+  }
 
   useEffect(() => {
     const onKey = (event) => {
@@ -100,8 +110,30 @@ function useSlideNavigation(total) {
   return { index, goTo, next, prev, swipeHandlers }
 }
 
+const challengesIndex = sections.findIndex((item) => item.k === 'challenges')
+
 export default function App() {
-  const { index, goTo, next, prev, swipeHandlers } = useSlideNavigation(sections.length)
+  const interceptors = useRef({})
+  const { index, goTo, next, prev, swipeHandlers } = useSlideNavigation(sections.length, interceptors)
+  const [challengeStep, setChallengeStep] = useState(0)
+
+  interceptors.current[challengesIndex] = {
+    next: () => {
+      if (challengeStep >= 3) return false
+      setChallengeStep(challengeStep + 1)
+      return true
+    },
+    prev: () => {
+      if (challengeStep <= 0) return false
+      setChallengeStep(challengeStep - 1)
+      return true
+    },
+  }
+
+  useEffect(() => {
+    if (index !== challengesIndex) setChallengeStep(0)
+  }, [index])
+
   const current = sections[index]
   const progress = ((index + 1) / sections.length) * 100
 
@@ -137,11 +169,11 @@ export default function App() {
         <CostControl />
         <AiInspection />
         <AiVision />
+        <AiAssistant />
         <Nfr />
         <Process />
         <Architecture />
-        <Challenges />
-        <Solutions />
+        <Challenges step={challengeStep} />
         <Testing />
         <Closing />
       </div>
@@ -836,7 +868,7 @@ function Estimation() {
 
       <div className="estimation-v6__strip">
         <SafeImage
-          src={media.finished}
+          src={media.materialsest}
           className="estimation-v6__image"
           fallbackClass="fallback-materials"
           alt="مواد الإكساء"
@@ -941,20 +973,32 @@ function AiInspection() {
 }
 
 function AiVision() {
+  const points = [
+    { icon: <IconCamera />, title: 'صورة للغرفة قبل التنفيذ', sub: 'من هاتف المنفّذ أو المالك' },
+    { icon: <IconPalette />, title: 'اختيار نمط الإكساء', sub: 'ألوان ومواد مقترحة' },
+    { icon: <IconEye />, title: 'معاينة قبل القرار', sub: 'اتفاق أوضح مع المالك' },
+  ]
+
   return (
-    <Slide className="ai-vision-v5">
-      <div className="ai-vision-v5__copy anim-rise">
-        <Eyebrow>AI Visualization & Context-Aware Assistant</Eyebrow>
+    <Slide className="vision-v7">
+      <div className="vision-v7__copy">
+        <Eyebrow>AI Visualization</Eyebrow>
         <h2>قبل التنفيذ…<br />رؤية بصرية أوضح للقرار</h2>
-       
-        <div className="ai-vision-v5__chips">
-          <span>Before → After</span>
-          <span>Visualization</span>
-          <span>AI Assistant</span>
+
+        <div className="vision-v7__points">
+          {points.map((point, i) => (
+            <article key={point.title} style={{ '--i': i }}>
+              <span className="vision-v7__icon" aria-hidden="true">{point.icon}</span>
+              <div>
+                <b>{point.title}</b>
+                <span>{point.sub}</span>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
 
-      <div className="ai-vision-v5__stage anim-fade">
+      <div className="vision-v7__stage">
         <div className="vision-compare">
           <SafeImage
             src={media.visionBefore}
@@ -975,10 +1019,116 @@ function AiVision() {
           <span className="vision-compare__tag vision-compare__tag--after">AI VISUALIZATION</span>
           <div className="vision-compare__handle" aria-hidden="true" />
         </div>
-
-       
       </div>
     </Slide>
+  )
+}
+
+function AiAssistant() {
+  const chat = [
+    { from: 'user', text: 'كم بقي من بنود الإكساء في الطابق الثاني؟' },
+    { from: 'bot', text: 'بقي بندان: دهان الغرف (%40) وتركيب الأبواب (%0).' },
+    { from: 'user', text: 'وهل تجاوزنا موازنة السيراميك؟' },
+    { from: 'bot', text: 'لا، الصرف الحالي %86 من الموازنة المخصصة.' },
+  ]
+  const points = [
+    { icon: <IconContext />, title: 'يقرأ سياق المشروع', sub: 'بنود، إنجاز، تكاليف' },
+    { icon: <IconChat />, title: 'سؤال بلغة طبيعية', sub: 'بدل التنقل بين الشاشات' },
+    { icon: <IconGuard />, title: 'ضمن صلاحيات المستخدم', sub: 'لا يتجاوز دور صاحب السؤال' },
+  ]
+
+  return (
+    <Slide className="assistant-v7">
+      <div className="assistant-v7__copy">
+        <Eyebrow>Context-Aware Assistant</Eyebrow>
+        <h2>مساعد يفهم<br />سياق المشروع</h2>
+
+        <div className="assistant-v7__points">
+          {points.map((point, i) => (
+            <article key={point.title} style={{ '--i': i }}>
+              <span className="assistant-v7__icon" aria-hidden="true">{point.icon}</span>
+              <div>
+                <b>{point.title}</b>
+                <span>{point.sub}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div className="assistant-v7__chat">
+        <header>
+          <span className="assistant-v7__avatar" aria-hidden="true"><IconChat /></span>
+          <div>
+            <b dir="ltr">Mutqin Assistant</b>
+            <span>متصل بمشروع «برج الياسمين»</span>
+          </div>
+        </header>
+
+        <div className="assistant-v7__messages">
+          {chat.map((message, i) => (
+            <p key={message.text} className={`is-${message.from}`} style={{ '--i': i }}>{message.text}</p>
+          ))}
+          <span className="assistant-v7__typing" aria-hidden="true"><i /><i /><i /></span>
+        </div>
+      </div>
+    </Slide>
+  )
+}
+
+function IconCamera() {
+  return (
+    <svg {...iconProps}>
+      <path d="M6 16a4 4 0 0 1 4-4h5l3-5h12l3 5h5a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V16Z" />
+      <circle cx="24" cy="25" r="8" />
+    </svg>
+  )
+}
+
+function IconPalette() {
+  return (
+    <svg {...iconProps}>
+      <path d="M24 6c10 0 18 7.2 18 16 0 5-4 8-8 8h-3a4 4 0 0 0-3 6.6c1 1.4.2 3.4-1.6 3.4C15.5 40 6 32.5 6 22 6 13.2 14 6 24 6Z" />
+      <path d="M15 20h.02M21 15h.02M29 15h.02M34 21h.02" />
+    </svg>
+  )
+}
+
+function IconEye() {
+  return (
+    <svg {...iconProps}>
+      <path d="M4 24s7-12 20-12 20 12 20 12-7 12-20 12S4 24 4 24Z" />
+      <circle cx="24" cy="24" r="6" />
+    </svg>
+  )
+}
+
+function IconContext() {
+  return (
+    <svg {...iconProps}>
+      <rect x="6" y="8" width="36" height="32" rx="5" />
+      <path d="M6 18h36" opacity=".55" />
+      <path d="M13 26h10M13 33h16" />
+      <circle cx="33" cy="27" r="4.5" />
+    </svg>
+  )
+}
+
+function IconChat() {
+  return (
+    <svg {...iconProps}>
+      <path d="M6 13a5 5 0 0 1 5-5h26a5 5 0 0 1 5 5v16a5 5 0 0 1-5 5H20l-14 8V13Z" />
+      <path d="M16 21h.02M24 21h.02M32 21h.02" />
+    </svg>
+  )
+}
+
+function IconGuard() {
+  return (
+    <svg {...iconProps}>
+      <path d="M24 5 39 10v11c0 9.4-6.3 16.7-15 19-8.7-2.3-15-9.6-15-19V10l15-5Z" />
+      <path d="m17.5 24 4.5 4.5L31 20" />
+    </svg>
   )
 }
 
@@ -1077,30 +1227,82 @@ function IconScale() {
 }
 
 function Process() {
-  const releases = ['Foundation', 'Operations', 'AI & Testing']
+  const phases = ['تخطيط', 'تنفيذ', 'مراجعة', 'تسليم']
+  const releases = [
+    { en: 'Foundation', ar: 'المشاريع والبنود والصلاحيات', icon: <IconFoundation /> },
+    { en: 'Operations', ar: 'الإنجاز والاعتماد والتكاليف', icon: <IconOperations /> },
+    { en: 'AI & Testing', ar: 'الفحص البصري وتغطية الاختبارات', icon: <IconAiTest /> },
+  ]
 
   return (
-    <Slide className="process-v5">
-      <div className="process-v5__visual anim-fade">
-        <SafeImage
-          src={media.team}
-          alt="جلسة تخطيط الفريق"
-          className="process-v5__image"
-          fallbackClass="fallback-team"
-        />
-        <div className="process-v5__overlay" />
-      </div>
-
-      <div className="process-v5__copy anim-rise">
-        <Eyebrow>Agile Process Model</Eyebrow>
+    <Slide className="process-v8">
+      <div className="process-v8__copy">
+        <Eyebrow>Agile · Sprints</Eyebrow>
         <h2>بناء تدريجي…<br />وتسليمات متتابعة</h2>
 
-       
-        <div className="process-v5__releases" dir="ltr">
-          {releases.map((item) => <b key={item}>{item}</b>)}
+        <div className="process-v8__releases">
+          {releases.map((item, i) => (
+            <article key={item.en} style={{ '--i': i }}>
+              <span className="process-v8__icon" aria-hidden="true">{item.icon}</span>
+              <div>
+                <i dir="ltr">Release {String(i + 1).padStart(2, '0')}</i>
+                <b dir="ltr">{item.en}</b>
+                <span>{item.ar}</span>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
+
+      <div className="process-v8__loop">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <circle className="process-v8__ring" cx="100" cy="100" r="78" />
+          <circle className="process-v8__arc" cx="100" cy="100" r="78" />
+        </svg>
+
+        <span className="process-v8__orbit" aria-hidden="true"><i /></span>
+
+        <div className="process-v8__center">
+          <b dir="ltr">Sprint</b>
+          <span>دورة قصيرة متكررة</span>
+        </div>
+
+        {phases.map((phase, i) => (
+          <span key={phase} className={`process-v8__phase process-v8__phase--${i + 1}`} style={{ '--i': i }}>
+            {phase}
+          </span>
+        ))}
+      </div>
     </Slide>
+  )
+}
+
+function IconFoundation() {
+  return (
+    <svg {...iconProps}>
+      <path d="M6 18 24 8l18 10-18 10L6 18Z" />
+      <path d="M6 30l18 10 18-10" opacity=".55" />
+      <path d="M13 22v9M35 22v9" opacity=".4" />
+    </svg>
+  )
+}
+
+function IconOperations() {
+  return (
+    <svg {...iconProps}>
+      <circle cx="24" cy="24" r="7" />
+      <path d="M24 4v6M24 38v6M4 24h6M38 24h6M10 10l4.5 4.5M33.5 33.5 38 38M38 10l-4.5 4.5M14.5 33.5 10 38" />
+    </svg>
+  )
+}
+
+function IconAiTest() {
+  return (
+    <svg {...iconProps}>
+      <rect x="10" y="12" width="28" height="24" rx="7" />
+      <path d="M24 4v8M18 23h.02M30 23h.02" />
+      <path d="m18.5 30 3.5 3.5 7-7" />
+    </svg>
   )
 }
 
@@ -1173,82 +1375,70 @@ function Architecture() {
   )
 }
 
-function Challenges() {
+function Challenges({ step = 0 }) {
   const items = [
-    { en: 'Requirements', ar: 'متطلبات غير موثقة', icon: <IconRequirements /> },
-    { en: 'Measurement', ar: 'قياس إنجاز مختلف', icon: <IconMeasure /> },
-    { en: 'AI Reliability', ar: 'مخرجات ذكاء غير ثابتة', icon: <IconAiRisk /> },
+    {
+      en: 'Requirements',
+      problem: 'خبرة ميدانية غير موثّقة',
+      answer: 'مقابلات وزيارات حوّلت المعرفة إلى متطلبات مكتوبة',
+      icon: <IconRequirements />,
+    },
+    {
+      en: 'Measurement',
+      problem: 'كل بند يُقاس بطريقة مختلفة',
+      answer: 'محرك متعدد الاستراتيجيات لحساب نسبة الإنجاز',
+      icon: <IconMeasure />,
+    },
+    {
+      en: 'AI Reliability',
+      problem: 'مخرجات الذكاء الاصطناعي غير ثابتة',
+      answer: 'أداة دعم قرار… القرار النهائي للمهندس',
+      icon: <IconAiRisk />,
+    },
   ]
 
   return (
-    <Slide className="challenges-v7">
+    <Slide className="challenges-v8">
       <SafeImage
-        src={media.inspection}
-        className="challenges-v7__bg"
+        src={media.tahady}
+        className="challenges-v8__bg"
         fallbackClass="fallback-room"
         alt="موقع عمل"
       />
-      <div className="challenges-v7__scrim" />
+      <div className="challenges-v8__scrim" />
 
-      <div className="challenges-v7__content">
-        <p className="eyebrow">Three hard problems</p>
-        <h2>العوائق<br />والتحديات</h2>
+      <div className="challenges-v8__content">
+        <div className="challenges-v8__head">
+          <p className="eyebrow">Three hard problems</p>
+          <h2>العوائق والتحديات</h2>
+        </div>
 
-        <div className="challenges-v7__row">
-          {items.map((item, index) => (
-            <article key={item.en} className="challenges-v7__item">
-              <span className="challenges-v7__icon" aria-hidden="true">{item.icon}</span>
-              <i>{String(index + 1).padStart(2, '0')}</i>
-              <b>{item.en}</b>
-              <p>{item.ar}</p>
+        <div className="challenges-v8__row">
+          {items.map((item, i) => (
+            <article key={item.en} className={`challenges-v8__item${step > i ? ' is-solved' : ''}`}>
+              <span className="challenges-v8__icon" aria-hidden="true">
+                {item.icon}
+                <i className="challenges-v8__check"><IconCheck /></i>
+              </span>
+
+              <i className="challenges-v8__index" dir="ltr">{String(i + 1).padStart(2, '0')}</i>
+              <b dir="ltr">{item.en}</b>
+              <p className="challenges-v8__problem">{item.problem}</p>
+
+              <div className="challenges-v8__answer">
+                <span className="challenges-v8__answer-label">المعالجة</span>
+                <p>{item.answer}</p>
+              </div>
             </article>
           ))}
         </div>
-      </div>
-    </Slide>
-  )
-}
 
-function Solutions() {
-  const rows = [
-    {
-      photo: media.team,
-      icon: <IconRequirements />,
-      problem: 'خبرة ميدانية غير موثّقة',
-      answer: 'زيارات ومقابلات حوّلت المعرفة إلى متطلبات مكتوبة',
-    },
-    {
-      photo: media.blueprint,
-      icon: <IconMeasure />,
-      problem: 'كل بند يُقاس بطريقة مختلفة',
-      answer: 'محرك متعدد الاستراتيجيات لحساب نسبة الإنجاز',
-    },
-    {
-      photo: media.materials,
-      icon: <IconAiRisk />,
-      problem: 'مخرجات الذكاء الاصطناعي غير ثابتة',
-      answer: 'أداة دعم قرار… القرار النهائي للمهندس',
-    },
-  ]
-
-  return (
-    <Slide className="solutions-v7">
-      <BigTitle ar="كيف تعاملنا معها"/>
-
-      <div className="solutions-v7__list">
-        {rows.map((row, index) => (
-          <article className="solutions-v7__row" key={row.problem}>
-            <div className="solutions-v7__photo">
-              <SafeImage src={row.photo} alt="" fallbackClass="fallback-room" />
-              <span className="solutions-v7__icon" aria-hidden="true">{row.icon}</span>
-            </div>
-            <div className="solutions-v7__text">
-              <i>{String(index + 1).padStart(2, '0')}</i>
-              <b>{row.problem}</b>
-              <p>{row.answer}</p>
-            </div>
-          </article>
-        ))}
+        <div className="challenges-v8__hint">
+          <div className="challenges-v8__dots" aria-hidden="true">
+            {[0, 1, 2].map((i) => <i key={i} className={step > i ? 'is-on' : ''} />)}
+          </div>
+          <span>{step >= 3 ? 'ثلاث معالجات… ثلاث قرارات هندسية' : ''}</span>
+        </div>
       </div>
     </Slide>
   )
