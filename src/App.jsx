@@ -1,25 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+const asset = (path) => `${import.meta.env.BASE_URL}${path}`
+
 const media = {
-  unfinished: '/presentation/unfinished-room.jpg',
-  blueprint: '/presentation/blueprint.jpg',
-  inspection: '/presentation/site-inspection.jpg',
-  materials: '/presentation/materials.jpg',
-  finished: '/presentation/finished-room.jpg',
-  team: '/presentation/team-planning.jpg',
-  university: '/branding/damascus-university-logo.png',
-  universitySvg: '/branding/damascus-university-logo.svg',
-  mutqin: '/branding/mutqin-logo.svg',
-  mutqinPng: '/branding/mutqin-logo.png',
-  visionBefore: '/presentation/visualization-before.jpg',
-  visionAfter: '/presentation/visualization-after.jpg',
-  reactLogo: '/tech/react.svg',
-  flutterLogo: '/tech/flutter.svg',
-  laravelLogo: '/tech/laravel.svg',
-  mysqlLogo: '/tech/mysql.svg',
-  web: '/product/web-dashboard.png',
-  assistant: '/product/assistant-mobile.jpg',
-  owner: '/product/owner-mobile.jpg',
+  unfinished: asset('presentation/unfinished-room.jpg'),
+  blueprint: asset('presentation/blueprint.jpg'),
+  inspection: asset('presentation/site-inspection.jpg'),
+  materials: asset('presentation/materials.jpg'),
+  finished: asset('presentation/finished-room.jpg'),
+  team: asset('presentation/team-planning.jpg'),
+  university: asset('branding/damascus-university-logo.png'),
+  universitySvg: asset('branding/damascus-university-logo.svg'),
+  mutqin: asset('branding/mutqin-logo.svg'),
+  mutqinPng: asset('branding/mutqin-logo.png'),
+  visionBefore: asset('presentation/visualization-before.jpg'),
+  visionAfter: asset('presentation/visualization-after.jpg'),
+  reactLogo: asset('tech/react.svg'),
+  flutterLogo: asset('tech/flutter.svg'),
+  laravelLogo: asset('tech/laravel.svg'),
+  mysqlLogo: asset('tech/mysql.svg'),
+  web: asset('product/web-dashboard.png'),
+  assistant: asset('product/assistant-mobile.jpg'),
+  owner: asset('product/owner-mobile.jpg'),
 }
 
 const sections = [
@@ -46,7 +48,7 @@ const sections = [
 ]
 
 function useSlideNavigation(total) {
-  const [index, setIndex] = useState(13)
+  const [index, setIndex] = useState(0)
   const touchStart = useRef(null)
   const wheelLock = useRef(false)
 
@@ -193,8 +195,8 @@ function UniversityLogo() {
 function MutqinLogo({ className = '' }) {
   return (
     <picture className={`mutqin-logo-picture ${className}`}>
-      <source srcSet="/branding/mutqin-logo.svg" type="image/svg+xml" />
-      <img src="/branding/mutqin-logo.png" alt="متقن" className="mutqin-logo" />
+      <source srcSet={media.mutqin} type="image/svg+xml" />
+      <img src={media.mutqinPng} alt="متقن" className="mutqin-logo" />
     </picture>
   )
 }
