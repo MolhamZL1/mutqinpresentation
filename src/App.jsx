@@ -69,10 +69,10 @@ function useSlideNavigation(total, interceptors) {
   useEffect(() => {
     const onKey = (event) => {
       const key = event.key.toLowerCase()
-      if (['arrowright', 'arrowdown', ' ', 'pagedown'].includes(key)) {
+      if (['arrowleft', 'arrowdown', ' ', 'pagedown'].includes(key)) {
         event.preventDefault(); next()
       }
-      if (['arrowleft', 'arrowup', 'pageup'].includes(key)) {
+      if (['arrowright', 'arrowup', 'pageup'].includes(key)) {
         event.preventDefault(); prev()
       }
       if (key === 'home') goTo(0)
@@ -151,8 +151,20 @@ export default function App() {
     })
   }, [index])
 
+  const isInteractive = (target) => target.closest('button, a, input, textarea, select, .controls, .topbar')
+
+  const handleClick = (event) => {
+    if (isInteractive(event.target)) return
+    next()
+  }
+  const handleContextMenu = (event) => {
+    if (isInteractive(event.target)) return
+    event.preventDefault()
+    prev()
+  }
+
   return (
-    <main className="deck" dir="rtl" {...swipeHandlers}>
+    <main className="deck" dir="rtl" onClick={handleClick} onContextMenu={handleContextMenu} {...swipeHandlers}>
       <div className="soft-grid" />
       <Header current={current} index={index} total={sections.length} progress={progress} />
       <div className="slides" style={{ transform: `translateX(${index * 100}vw)` }}>
