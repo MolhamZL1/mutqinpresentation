@@ -27,30 +27,31 @@ const media = {
 }
 
 const sections = [
-  { k: 'cover', section: 'مُتقِن', en: 'Opening' },
-  { k: 'why', section: 'سبب الاختيار', en: 'Why this project?' },
-  { k: 'questions', section: 'الأسئلة الأربعة', en: 'Four questions' },
-  { k: 'overview', section: 'نظرة عامة', en: 'System overview' },
-  { k: 'requirements', section: 'جمع المتطلبات', en: 'Requirements elicitation' },
-  { k: 'gap', section: 'الفجوة', en: 'Specialized gap' },
-  { k: 'lifecycle', section: 'دورة الحياة', en: 'Project lifecycle' },
-  { k: 'approval', section: 'اعتماد الإنجاز', en: 'Verified progress' },
-  { k: 'strategy', section: 'حساب الإنجاز', en: 'Multi-strategy engine' },
-  { k: 'estimation', section: 'التقدير', en: 'Parametric estimation' },
-  { k: 'cost', section: 'الكلفة', en: 'Cost control' },
-  { k: 'ai-inspection', section: 'الفحص البصري', en: 'AI visual inspection', dark: true },
-  { k: 'ai-vision', section: 'التصور البصري', en: 'AI visualization' },
-  { k: 'ai-assistant', section: 'المساعد الذكي', en: 'Context-aware assistant' },
-  { k: 'nfr', section: 'المتطلبات غير الوظيفية', en: 'Non-functional requirements' },
-  { k: 'process', section: 'نموذج العمل', en: 'Agile process' },
-  { k: 'architecture', section: 'البنية المعمارية', en: 'Architecture' },
-  { k: 'challenges', section: 'التحديات', en: 'Challenges', dark: true },
-  { k: 'testing', section: 'الاختبار', en: 'Testing phase' },
-  { k: 'closing', section: 'الخاتمة', en: 'Conclusion', dark: true },
+  { k: 'cover', section: 'مُتقِن', en: 'افتتاحية العرض' },
+  { k: 'why', section: 'سبب الاختيار', en: 'ليش هذا المشروع؟' },
+  { k: 'questions', section: 'الأسئلة الأربعة', en: 'الأسئلة التي أطلقت الفكرة' },
+  { k: 'overview', section: 'نظرة عامة', en: 'نظرة شاملة على النظام' },
+  { k: 'requirements', section: 'جمع المتطلبات', en: 'استخلاص المتطلبات من الميدان' },
+  { k: 'gap', section: 'الفجوة', en: 'الفجوة في الحلول الحالية' },
+  { k: 'lifecycle', section: 'دورة الحياة', en: 'من التأسيس حتى التسليم' },
+  { k: 'approval', section: 'اعتماد الإنجاز', en: 'إنجاز موثّق ومعتمد' },
+  { k: 'strategy', section: 'حساب الإنجاز', en: 'محرك متعدد الاستراتيجيات' },
+  { k: 'estimation', section: 'التقدير', en: 'تقدير قياسي دقيق' },
+  { k: 'cost', section: 'الكلفة', en: 'ضبط الكلفة أولاً بأول' },
+  { k: 'ai-inspection', section: 'الفحص البصري', en: 'فحص بصري بالذكاء الاصطناعي', dark: true },
+  { k: 'ai-vision', section: 'التصور البصري', en: 'تصور بصري قبل التنفيذ' },
+  { k: 'ai-assistant', section: 'المساعد الذكي', en: 'مساعد ذكي يفهم السياق' },
+  { k: 'nfr', section: 'المتطلبات غير الوظيفية', en: 'متطلبات الأداء والجودة' },
+  { k: 'process', section: 'نموذج العمل', en: 'منهجية عمل رشيقة' },
+  { k: 'architecture', section: 'البنية المعمارية', en: 'البنية التقنية للنظام' },
+  { k: 'challenges', section: 'التحديات', en: 'أبرز العوائق وحلولها', dark: true },
+  { k: 'testing', section: 'الاختبار', en: 'مرحلة الاختبار والتحقق' },
+  { k: 'closing', section: 'الخاتمة', en: 'خاتمة العرض', dark: true },
+  { k: 'thanks', section: 'شكراً لإصغائكم', en: 'ختام العرض والنقاش', dark: true },
 ]
 
 function useSlideNavigation(total, interceptors) {
-  const [index, setIndex] = useState(12)
+  const [index, setIndex] = useState(0)
   const touchStart = useRef(null)
   const wheelLock = useRef(false)
 
@@ -111,27 +112,79 @@ function useSlideNavigation(total, interceptors) {
 }
 
 const challengesIndex = sections.findIndex((item) => item.k === 'challenges')
+const questionsIndex = sections.findIndex((item) => item.k === 'questions')
+const nfrIndex = sections.findIndex((item) => item.k === 'nfr')
+const overviewIndex = sections.findIndex((item) => item.k === 'overview')
+const questionsCount = 4
+const challengesCount = 3
+const nfrCount = 6
+const overviewCount = 3
 
 export default function App() {
   const interceptors = useRef({})
   const { index, goTo, next, prev, swipeHandlers } = useSlideNavigation(sections.length, interceptors)
-  const [challengeStep, setChallengeStep] = useState(0)
+  const [challengeStep, setChallengeStep] = useState(-1)
+  const [questionStep, setQuestionStep] = useState(-1)
+  const [nfrStep, setNfrStep] = useState(-1)
+  const [overviewStep, setOverviewStep] = useState(-1)
 
   interceptors.current[challengesIndex] = {
     next: () => {
-      if (challengeStep >= 3) return false
+      if (challengeStep >= challengesCount * 2 - 1) return false
       setChallengeStep(challengeStep + 1)
       return true
     },
     prev: () => {
-      if (challengeStep <= 0) return false
+      if (challengeStep <= -1) return false
       setChallengeStep(challengeStep - 1)
       return true
     },
   }
 
+  interceptors.current[questionsIndex] = {
+    next: () => {
+      if (questionStep >= questionsCount) return false
+      setQuestionStep(questionStep + 1)
+      return true
+    },
+    prev: () => {
+      if (questionStep <= -1) return false
+      setQuestionStep(questionStep - 1)
+      return true
+    },
+  }
+
+  interceptors.current[nfrIndex] = {
+    next: () => {
+      if (nfrStep >= nfrCount - 1) return false
+      setNfrStep(nfrStep + 1)
+      return true
+    },
+    prev: () => {
+      if (nfrStep <= -1) return false
+      setNfrStep(nfrStep - 1)
+      return true
+    },
+  }
+
+  interceptors.current[overviewIndex] = {
+    next: () => {
+      if (overviewStep >= overviewCount - 1) return false
+      setOverviewStep(overviewStep + 1)
+      return true
+    },
+    prev: () => {
+      if (overviewStep <= -1) return false
+      setOverviewStep(overviewStep - 1)
+      return true
+    },
+  }
+
   useEffect(() => {
-    if (index !== challengesIndex) setChallengeStep(0)
+    if (index !== challengesIndex) setChallengeStep(-1)
+    if (index !== questionsIndex) setQuestionStep(-1)
+    if (index !== nfrIndex) setNfrStep(-1)
+    if (index !== overviewIndex) setOverviewStep(-1)
   }, [index])
 
   const current = sections[index]
@@ -170,8 +223,8 @@ export default function App() {
       <div className="slides" style={{ transform: `translateX(${index * 100}vw)` }}>
         <Cover />
         <Problem />
-        <Questions />
-        <Overview />
+        <Questions step={questionStep} />
+        <Overview step={overviewStep} />
         <Requirements />
         <SystemsGap />
         <Lifecycle />
@@ -182,12 +235,13 @@ export default function App() {
         <AiInspection />
         <AiVision />
         <AiAssistant />
-        <Nfr />
+        <Nfr step={nfrStep} />
         <Process />
         <Architecture />
         <Challenges step={challengeStep} />
         <Testing />
         <Closing />
+        <Thanks />
       </div>
       <Controls index={index} total={sections.length} goTo={goTo} next={next} prev={prev} />
     </main>
@@ -253,7 +307,7 @@ function BigTitle({ ar, en, compact = false }) {
   return (
     <div className={compact ? 'title title--compact' : 'title'}>
       <h2>{ar}</h2>
-      {en ? <p dir="ltr">{en}</p> : null}
+      {en ? <p>{en}</p> : null}
     </div>
   )
 }
@@ -328,25 +382,34 @@ function IconAlert() {
   )
 }
 
-function Questions() {
+function Questions({ step = -1 }) {
   const items = [
     { en: 'Progress', ar: 'ما نسبة الإنجاز اليوم؟', icon: <IconProgress /> },
     { en: 'Materials', ar: 'كم نحتاج من مواد؟', icon: <IconMaterials /> },
     { en: 'Budget', ar: 'هل تجاوزنا الموازنة؟', icon: <IconBudget /> },
     { en: 'Quality', ar: 'من تحقق من الجودة؟', icon: <IconQuality /> },
   ]
+  const showNaming = step >= items.length
   return (
     <Slide className="questions">
-      <BigTitle ar="أربعة أسئلة" en="Four questions shaped the product" />
-      <div className="question-row">
-        {items.map((item, idx) => (
-          <article className="q-item" key={item.en}>
-            <span className="q-item__icon" aria-hidden="true">{item.icon}</span>
-            <b dir="ltr">{String(idx + 1).padStart(2, '0')}</b>
-            <h3>{item.ar}</h3>
-            <span className="q-item__en" dir="ltr">{item.en}</span>
-          </article>
-        ))}
+      <div className={`questions__intro${showNaming ? ' is-leaving' : ''}`}>
+        <BigTitle ar="أربعة أسئلة" en="أسئلة شكلت المنتج" />
+        <div className="question-row">
+          {items.map((item, idx) => (
+            <article className={`q-item${idx <= step ? ' is-visible' : ''}`} key={item.en}>
+              <span className="q-item__icon" aria-hidden="true">{item.icon}</span>
+              <b dir="ltr">{String(idx + 1).padStart(2, '0')}</b>
+              <h3>{item.ar}</h3>
+              <span className="q-item__en" dir="ltr">{item.en}</span>
+            </article>
+          ))}
+        </div>
+      </div>
+      <div className={`questions__naming${showNaming ? ' is-visible' : ''}`}>
+        <span className="questions__naming-glow" aria-hidden="true" />
+        <MutqinLogo className="questions__naming-logo" />
+        <h2 className="questions__naming-word">مُتقِن</h2>
+        <p className="questions__naming-sub"> من اين جاء الاسم؟</p>
       </div>
     </Slide>
   )
@@ -400,38 +463,43 @@ function IconQuality() {
   )
 }
 
-function Overview() {
+function Overview({ step = -1 }) {
   return (
     <Slide className="overview-v6">
       <div className="overview-v6__copy anim-rise">
         <Eyebrow>System Overview</Eyebrow>
         <h2>منصة واحدة<br />لثلاث تجارب استخدام....</h2>
-        
+
       </div>
 
-      <div className="overview-v6__mockups anim-fade" dir="ltr">
-        <div className="ipad-mockup">
+      <div className="overview-v6__mockups" dir="ltr">
+        <div className={`ipad-mockup${step >= 0 ? ' is-visible' : ''}`}>
           <div className="ipad-mockup__bar">
-            <span />
+            <span className="ipad-mockup__dot ipad-mockup__dot--red" />
+            <span className="ipad-mockup__dot ipad-mockup__dot--yellow" />
+            <span className="ipad-mockup__dot ipad-mockup__dot--green" />
             <b>Web Dashboard</b>
           </div>
           <div className="ipad-mockup__screen">
             <SafeImage src={media.web} alt="Web dashboard" className="mockup-image" fallbackClass="fallback-ui" />
+            <span className="mockup-sheen" aria-hidden="true" />
           </div>
         </div>
 
-        <div className="phone-mockup phone-mockup--assistant">
-          <div className="phone-mockup__speaker" />
+        <div className={`phone-mockup phone-mockup--assistant${step >= 1 ? ' is-visible' : ''}`}>
+          <div className="phone-mockup__notch" />
           <div className="phone-mockup__screen">
             <SafeImage src={media.assistant} alt="Assistant app" className="mockup-image" fallbackClass="fallback-ui" />
+            <span className="mockup-sheen" aria-hidden="true" />
           </div>
           <b>Assistant</b>
         </div>
 
-        <div className="phone-mockup phone-mockup--owner">
-          <div className="phone-mockup__speaker" />
+        <div className={`phone-mockup phone-mockup--owner${step >= 2 ? ' is-visible' : ''}`}>
+          <div className="phone-mockup__notch" />
           <div className="phone-mockup__screen">
             <SafeImage src={media.owner} alt="Owner app" className="mockup-image" fallbackClass="fallback-ui" />
+            <span className="mockup-sheen" aria-hidden="true" />
           </div>
           <b>Owner</b>
         </div>
@@ -625,7 +693,7 @@ function Lifecycle() {
   ]
   return (
     <Slide className="lifecycle">
-      <BigTitle ar="دورة حياة الإكساء" en="From project setup to delivery" />
+      <BigTitle ar= "الادارة الذكية لدورة حياة المشروع"en="دورة حياة الإكساء"/>
       <div className="life-flow">
         <span className="life-flow__rail" aria-hidden="true"><i /></span>
         {steps.map((step, i) => (
@@ -706,7 +774,7 @@ function VerifiedProgress() {
     <Slide className="approval-v6">
       <div className="approval-v6__copy">
         <Eyebrow>Approval Workflow</Eyebrow>
-        <h2>الإنجاز لا يُحتسب<br />قبل الاعتماد</h2>
+        <h2>سير الاعتماد <br />الهندسي للانجاز</h2>
         <p>ما يُسجَّل في الموقع يبقى طلبًا حتى يعتمده المهندس.</p>
 
         <div className="approval-v6__legend">
@@ -785,7 +853,7 @@ function Strategy() {
     <Slide className="strategy-v6">
       <div className="strategy-v6__copy">
         <Eyebrow>Multi-Strategy Progress Engine</Eyebrow>
-        <h2>لكل بند<br />طريقة قياس تناسبه</h2>
+        <h2>محرك متعدد<br />الاستراتيجيات</h2>
 
         <div className="strategy-v6__grid">
           {items.map((item) => (
@@ -863,7 +931,7 @@ function Estimation() {
     <Slide className="estimation-v6">
       <div className="estimation-v6__heading">
         <Eyebrow>Parametric Estimation</Eyebrow>
-        <h2>من مشروع سابق إلى تقدير جديد</h2>
+        <h2>محرك التقدير الباراميتري للتكاليف</h2>
       </div>
 
       <div className="estimation-v6__flow">
@@ -927,7 +995,7 @@ function CostControl() {
     <Slide className="cost-v4">
       <div className="cost-v4__heading">
         <Eyebrow>Real-Time Cost Control</Eyebrow>
-        <h2>نعرف الانحراف<br />أثناء التنفيذ</h2>
+        <h2>المراقبة اللحظية للتكلفة<br />والميزانية</h2>
         <p dir="ltr">Estimated Cost vs Actual Cost</p>
       </div>
 
@@ -972,7 +1040,7 @@ function AiInspection() {
 
       <div className="inspection-v4__copy">
         <Eyebrow>AI Visual Inspection</Eyebrow>
-        <h2>يدعم قرار المهندس<br />ولا يستبدله</h2>
+        <h2>الفحص البصري الذكي<br />لجودة التنفيذ</h2>
         <div className="inspection-v4__labels" dir="ltr">
           <span>Confirmed</span>
           <span>Potential</span>
@@ -1144,7 +1212,7 @@ function IconGuard() {
   )
 }
 
-function Nfr() {
+function Nfr({ step = -1 }) {
   const items = [
     { en: 'Performance', tech: 'Queues', ar: 'العمليات الثقيلة خارج مسار الطلب', icon: <IconBolt /> },
     { en: 'Security', tech: 'Sanctum · RBAC', ar: 'صلاحيات واضحة حسب الدور', icon: <IconShieldLock /> },
@@ -1163,7 +1231,7 @@ function Nfr() {
 
       <div className="nfr-v7__grid">
         {items.map((item, index) => (
-          <article key={item.en} style={{ '--i': index }}>
+          <article key={item.en} className={index <= step ? 'is-visible' : ''}>
             <span className="nfr-v7__icon" aria-hidden="true">{item.icon}</span>
             <div>
               <b dir="ltr">{item.en}</b>
@@ -1387,7 +1455,7 @@ function Architecture() {
   )
 }
 
-function Challenges({ step = 0 }) {
+function Challenges({ step = -1 }) {
   const items = [
     {
       en: 'Requirements',
@@ -1426,30 +1494,34 @@ function Challenges({ step = 0 }) {
         </div>
 
         <div className="challenges-v8__row">
-          {items.map((item, i) => (
-            <article key={item.en} className={`challenges-v8__item${step > i ? ' is-solved' : ''}`}>
-              <span className="challenges-v8__icon" aria-hidden="true">
-                {item.icon}
-                <i className="challenges-v8__check"><IconCheck /></i>
-              </span>
+          {items.map((item, i) => {
+            const isVisible = step >= i * 2
+            const isSolved = step >= i * 2 + 1
+            return (
+              <article key={item.en} className={`challenges-v8__item${isVisible ? ' is-visible' : ''}${isSolved ? ' is-solved' : ''}`}>
+                <span className="challenges-v8__icon" aria-hidden="true">
+                  {item.icon}
+                  <i className="challenges-v8__check"><IconCheck /></i>
+                </span>
 
-              <i className="challenges-v8__index" dir="ltr">{String(i + 1).padStart(2, '0')}</i>
-              <b dir="ltr">{item.en}</b>
-              <p className="challenges-v8__problem">{item.problem}</p>
+                <i className="challenges-v8__index" dir="ltr">{String(i + 1).padStart(2, '0')}</i>
+                <b dir="ltr">{item.en}</b>
+                <p className="challenges-v8__problem">{item.problem}</p>
 
-              <div className="challenges-v8__answer">
-                <span className="challenges-v8__answer-label">المعالجة</span>
-                <p>{item.answer}</p>
-              </div>
-            </article>
-          ))}
+                <div className="challenges-v8__answer">
+                  <span className="challenges-v8__answer-label">المعالجة</span>
+                  <p>{item.answer}</p>
+                </div>
+              </article>
+            )
+          })}
         </div>
 
         <div className="challenges-v8__hint">
           <div className="challenges-v8__dots" aria-hidden="true">
-            {[0, 1, 2].map((i) => <i key={i} className={step > i ? 'is-on' : ''} />)}
+            {items.map((item, i) => <i key={item.en} className={step >= i * 2 + 1 ? 'is-on' : ''} />)}
           </div>
-          <span>{step >= 3 ? 'ثلاث معالجات… ثلاث قرارات هندسية' : ''}</span>
+          <span>{step >= items.length * 2 - 1 ? 'ثلاث معالجات… ثلاث قرارات هندسية' : ''}</span>
         </div>
       </div>
     </Slide>
@@ -1614,8 +1686,7 @@ function Closing() {
       <div className="closing-v5__scrim" />
 
       <div className="closing-v5__content anim-rise">
-        <MutqinLogo className="closing-v5__logo" />
-        <Eyebrow>Conclusion</Eyebrow>
+
         <h2>من خبرة متفرقة…<br />إلى قرار مؤسسي قابل للقياس</h2>
 
         <div className="closing-v5__grid">
@@ -1626,8 +1697,22 @@ function Closing() {
             </article>
           ))}
         </div>
+      </div>
+    </Slide>
+  )
+}
 
-        <p className="closing-v5__thanks">شكراً لإصغائكم</p>
+function Thanks() {
+  return (
+    <Slide className="thanks-v1">
+      <div className="thanks-v1__content">
+        <MutqinLogo className="thanks-v1__logo" />
+        <h2 className="thanks-v1__title">شكراً لإصغائكم</h2>
+     
+        <div className="thanks-v1__people">
+          حسام زينه · ملهم الشيخ علي · وئام سالم · عبد الرحمن السعدي · عمار حمود
+        </div>
+        <div className="thanks-v1__meta">جامعة دمشق · كلية الهندسة المعلوماتية</div>
       </div>
     </Slide>
   )
